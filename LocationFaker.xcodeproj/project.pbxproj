@@ -10,6 +10,9 @@
 		AD779A9E1D2F2A330043F11C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD779A9D1D2F2A330043F11C /* Foundation.framework */; };
 		AD779AA81D2F2A350043F11C /* LocationFaker.mm in Sources */ = {isa = PBXBuildFile; fileRef = AD779AA71D2F2A350043F11C /* LocationFaker.mm */; };
 		AD779AB31D2F2B2F0043F11C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD779AB21D2F2B2F0043F11C /* CoreLocation.framework */; };
+		C54A1AA61D3898C100D165B9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C54A1AA51D3898C100D165B9 /* UIKit.framework */; };
+		C54A1AA81D38990500D165B9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C54A1AA71D38990500D165B9 /* CoreGraphics.framework */; };
+		C54A1AAC1D38A9F900D165B9 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C54A1AAB1D38A9F900D165B9 /* CoreMotion.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +25,9 @@
 		AD779AA71D2F2A350043F11C /* LocationFaker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LocationFaker.mm; sourceTree = "<group>"; };
 		AD779AAC1D2F2A350043F11C /* LocationFaker.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = LocationFaker.plist; path = Package/Library/MobileSubstrate/DynamicLibraries/LocationFaker.plist; sourceTree = "<group>"; };
 		AD779AB21D2F2B2F0043F11C /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		C54A1AA51D3898C100D165B9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		C54A1AA71D38990500D165B9 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		C54A1AAB1D38A9F900D165B9 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,6 +35,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C54A1AAC1D38A9F900D165B9 /* CoreMotion.framework in Frameworks */,
+				C54A1AA81D38990500D165B9 /* CoreGraphics.framework in Frameworks */,
+				C54A1AA61D3898C100D165B9 /* UIKit.framework in Frameworks */,
 				AD779AB31D2F2B2F0043F11C /* CoreLocation.framework in Frameworks */,
 				AD779A9E1D2F2A330043F11C /* Foundation.framework in Frameworks */,
 			);
@@ -57,6 +66,9 @@
 		AD779A9C1D2F2A330043F11C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C54A1AAB1D38A9F900D165B9 /* CoreMotion.framework */,
+				C54A1AA71D38990500D165B9 /* CoreGraphics.framework */,
+				C54A1AA51D3898C100D165B9 /* UIKit.framework */,
 				AD779AB21D2F2B2F0043F11C /* CoreLocation.framework */,
 				AD779A9D1D2F2A330043F11C /* Foundation.framework */,
 			);
@@ -269,13 +281,14 @@
 		AD779AB01D2F2A350043F11C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Developer ID Application: TieTie Inc. (D62JMM68M4)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Guangzhou Yuncheng Information Technology Co., Ltd.";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LocationFaker/LocationFaker-Prefix.pch";
 				INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "20c9314f-77a4-4d41-8f3b-da82aa9ebaee";
 				iOSOpenDevBuildPackageOnAnyBuild = NO;
 				iOSOpenDevCopyOnBuild = NO;
 				iOSOpenDevDevice = "";
@@ -289,13 +302,14 @@
 		AD779AB11D2F2A350043F11C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Developer ID Application: TieTie Inc. (D62JMM68M4)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Guangzhou Yuncheng Information Technology Co., Ltd.";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LocationFaker/LocationFaker-Prefix.pch";
 				INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "20c9314f-77a4-4d41-8f3b-da82aa9ebaee";
 				iOSOpenDevBuildPackageOnAnyBuild = NO;
 				iOSOpenDevCopyOnBuild = NO;
 				iOSOpenDevDevice = "";
@@ -325,6 +339,7 @@
 				AD779AB11D2F2A350043F11C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
