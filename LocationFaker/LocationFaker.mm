@@ -394,13 +394,18 @@ static NSString *kDurationKey = @"CSToastDurationKey";
 
 + (void)saveLog:(NSString *)log;
 - (NSDictionary *)loadSetting;
+- (void)locationManager:(CLLocationManager *)manager
+     didUpdateLocations:(NSArray<CLLocation *> *)locations;
 
 
 @end
 
 static float x = -1;
 static float y = -1;
-static NSLock *lock = nil;
+static CLLocationDegrees startLatitude = 37.78790729999996;
+static CLLocationDegrees startLongitude = -122.40792430000003;
+
+static CLLocationManager *fakeManager = nil;
 
 @interface ControllerView : UIView
 {
@@ -420,14 +425,14 @@ static NSLock *lock = nil;
     
         UIButton *upButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         [upButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [upButton setTitle:@"🔼" forState:UIControlStateNormal];
+        [upButton setImage:[UIImage imageNamed:@"up"] forState:UIControlStateNormal];
         upButton.tag = 0;
         [self addSubview:upButton];
         upButton.center = CGPointMake(width/2, 20);
         
         UIButton *downButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         [downButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [downButton setTitle:@"🔽" forState:UIControlStateNormal];
+        [downButton setImage:[UIImage imageNamed:@"down"] forState:UIControlStateNormal];
          downButton.tag = 1;
         [self addSubview:downButton];
         
@@ -435,7 +440,7 @@ static NSLock *lock = nil;
         
         UIButton *leftButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         [leftButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [leftButton setTitle:@"◀️" forState:UIControlStateNormal];
+        [leftButton setImage:[UIImage imageNamed:@"left"] forState:UIControlStateNormal];
         [self addSubview:leftButton];
           leftButton.tag = 2;
         
@@ -444,15 +449,29 @@ static NSLock *lock = nil;
         
         UIButton *rightButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         [rightButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [rightButton setTitle:@"▶️" forState:UIControlStateNormal];
+        [rightButton setImage:[UIImage imageNamed:@"right"] forState:UIControlStateNormal];
         [self addSubview:rightButton];
          rightButton.tag = 3;
         
         rightButton.center = CGPointMake(width - 20, height/2);
         self.alpha = 0.7;
         
+        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onPan:)];
+        [self addGestureRecognizer:pan];
+        
     }
     return self;
+}
+
+- (void)onPan:(UIPanGestureRecognizer *)gesture
+{
+    if (gesture.state == UIGestureRecognizerStateChanged)
+    {
+        CGPoint point = [gesture translationInView:self];
+        [gesture setTranslation:CGPointZero inView:self];
+        CGPoint center = self.center;
+        self.center = CGPointMake(point.x + center.x, point.y + center.y);
+    }
 }
 
 - (void)onButtonPress:(UIButton *)button
@@ -486,6 +505,12 @@ static NSLock *lock = nil;
         default:
             break;
     }
+//    if (fakeManager)
+//    {
+//        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(startLatitude, startLongitude);
+//        CLLocation *location = [[CLLocation alloc] initWithCoordinate:coor altitude:0 horizontalAccuracy:5 verticalAccuracy:5 timestamp:[NSDate date]];
+//        [fakeManager.delegate locationManager:fakeManager didUpdateLocations:@[location]];
+//    }
  
 }
 
@@ -507,8 +532,6 @@ static NSLock *lock = nil;
 
 @end
 
-
-static CLLocationManager *fakeManager = nil;
 
 
 typedef enum {
@@ -532,9 +555,8 @@ static const NSString * kChangeDirectionKey = @"direction";
 static const NSString * kUpSideDownKey = @"upsidedown";
 static const NSString * kYUpSideDownKey = @"Yupsidedown";
 
+static const NSString * kLoadLastPositionKey = @"last";
 
-static CLLocationDegrees startLatitude = 37.78790729999996;
-static CLLocationDegrees startLongitude = -122.40792430000003;
 
 @interface CLLocation(Swizzle)
 
@@ -546,10 +568,7 @@ static CLLocationDegrees startLongitude = -122.40792430000003;
 
 
 + (void) load {
-    if (lock == nil)
-    {
-        lock = [[NSLock alloc] init];
-    }
+  
     Method m1 = class_getInstanceMethod(self, @selector(coordinate));
     Method m2 = class_getInstanceMethod(self, @selector(coordinate_));
     method_exchangeImplementations(m1, m2);
@@ -573,7 +592,7 @@ static CLLocationDegrees startLongitude = -122.40792430000003;
             });
     
         NSDictionary *location = [[FakeLocationManager manager] loadSetting];
-        if (location)
+        if (location && [location[kLoadLastPositionKey] boolValue] == NO)
         {
             CLLocationDegrees latitude = [location[kLatitudeKey] doubleValue];
             CLLocationDegrees longitude = [location[kLongitudeKey]doubleValue];
@@ -596,11 +615,7 @@ static CLLocationDegrees startLongitude = -122.40792430000003;
         x = pos.latitude - startLatitude;
         y = pos.longitude - (startLongitude);
     }
-    [lock lock];
-    float xt = x;
-    CGFloat yt = y;
-    [lock unlock];
-    return CLLocationCoordinate2DMake(pos.latitude-xt, pos.longitude-yt);
+    return CLLocationCoordinate2DMake(pos.latitude-x, pos.longitude-y);
 }
 
 
@@ -634,7 +649,6 @@ static FakeLocationManager *mamanger;
     self = [super init];
     if (self)
     {
-        [FakeLocationManager saveLog:@"init"];
         [FakeLocationManager  exchangeLocationFuction];
         
         _manager = [[CMMotionManager  alloc] init];
@@ -645,37 +659,7 @@ static FakeLocationManager *mamanger;
         _xUpSideDown = NO;
         _yUpSideDown = NO;
         [self enterFore];
-//        [self start];
-        
-//        _shakeManager = [[CMMotionManager  alloc] init];
-//        _shakeManager.accelerometerUpdateInterval = 0.1;
-//        _shakeManager.gyroUpdateInterval = 0.1;
-//        [_shakeManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:^(CMAccelerometerData * _Nullable accelerometerData, NSError * _Nullable error) {
-//            CMAcceleration acceleration = accelerometerData.acceleration;
-//            
-//            double accelerameter =sqrt( pow( acceleration.x , 2 ) + pow( acceleration.y , 2 )
-//                                       + pow( acceleration.z , 2) );
-//            //当综合加速度大于2.3时，就激活效果（此数值根据需求可以调整，数据越小，用户摇动的动作就越小，越容易激活，反之加大难度，但不容易误触发）
-//            if (accelerameter>2.0f) {
-//                
-//                
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    
-//                    if (_manager.accelerometerActive)
-//                    {
-//                        [self makeToast:@"停止重力"];
-//                        [_manager stopAccelerometerUpdates];
-//                    }
-//                    else
-//                    {
-//                        [self makeToast:@"开始重力"];
-//                        [self start];
-//                    }
-//                });
-//            }
-//            
-//        }];
-//        [FakeLocationManager saveLog:@"start"];
+ 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterFore) name:UIApplicationWillEnterForegroundNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterback) name:UIApplicationDidEnterBackgroundNotification object:nil];
         
@@ -766,14 +750,15 @@ static FakeLocationManager *mamanger;
     {
         fakeManager = manager;
     }
-    [FakeLocationManager saveLog:@"didupdate"];
     CLLocation *object = [locations firstObject];
-    NSDictionary *s = @{kLatitudeKey:@(object.coordinate.latitude),kLongitudeKey:@(object.coordinate.longitude)};
+ 
+    NSDictionary *s = @{kLatitudeKey:@(object.coordinate.latitude),kLongitudeKey:@(object.coordinate.longitude)}; 
     [[NSJSONSerialization dataWithJSONObject:s options:NSJSONWritingPrettyPrinted error:nil] writeToFile:[CLLocation savePath] atomically:YES];
-    [FakeLocationManager exchangeLocationFuction];
+    [FakeLocationManager exchangeLocationFuction]; 
     [self locationManager:manager didUpdateLocations:locations];
-    [FakeLocationManager exchangeLocationFuction];
     
+    [FakeLocationManager exchangeLocationFuction];
+     
 }
 
 + (void)exchangeLocationFuction
@@ -844,15 +829,15 @@ static FakeLocationManager *mamanger;
 
 + (void)saveLog:(NSString *)log
 {
-        NSString *document = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-        NSString *logPath = [document stringByAppendingPathComponent:@"log"];
-        NSMutableString *string = [[NSMutableString alloc] initWithContentsOfFile:logPath encoding:NSUTF8StringEncoding error:nil];
-        if (string == nil)
-        {
-            string = [NSMutableString string];
-        }
-    [string appendFormat:@"\n%@%@",[[NSThread currentThread] isMainThread] ? @"main thread" : @" no main",log];
-        [string writeToFile:logPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+//        NSString *document = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+//        NSString *logPath = [document stringByAppendingPathComponent:@"log"];
+//        NSMutableString *string = [[NSMutableString alloc] initWithContentsOfFile:logPath encoding:NSUTF8StringEncoding error:nil];
+//        if (string == nil)
+//        {
+//            string = [NSMutableString string];
+//        }
+//    [string appendFormat:@"\n%@%@",[[NSThread currentThread] isMainThread] ? @"main thread" : @" no main",log];
+//        [string writeToFile:logPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
 }
 
 - (void)makeToast:(NSString *)toast

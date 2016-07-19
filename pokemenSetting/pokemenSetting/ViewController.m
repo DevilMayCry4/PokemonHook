@@ -17,115 +17,8 @@ static const NSString * kScaleKey = @"scale";
 static const NSString * kChangeDirectionKey = @"direction";
 static const NSString * kUpSideDownKey = @"upsidedown";
 static const NSString * kYUpSideDownKey = @"Yupsidedown";
+static const NSString * kLoadLastPositionKey = @"last";
 
-static float x = 0;
-static float y = 0;
-
-@interface ControllerView : UIView
-{
-    NSTimer *_timer;
-}
-@end
-
-@implementation ControllerView
-
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self)
-    {
-        CGFloat width = CGRectGetWidth(frame);
-        CGFloat height = CGRectGetHeight(frame);
-        
-        UIButton *upButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-        [upButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [upButton setTitle:@"🔼" forState:UIControlStateNormal];
-        upButton.tag = 0;
-        [self addSubview:upButton];
-        upButton.center = CGPointMake(width/2, 20);
-        
-        UIButton *downButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-        [downButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [downButton setTitle:@"🔽" forState:UIControlStateNormal];
-        downButton.tag = 1;
-        [self addSubview:downButton];
-        
-        downButton.center = CGPointMake(width/2, CGRectGetHeight(frame) - 20);
-        
-        UIButton *leftButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-        [leftButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [leftButton setTitle:@"◀️" forState:UIControlStateNormal];
-        [self addSubview:leftButton];
-        leftButton.tag = 2;
-        
-        leftButton.center = CGPointMake(20, height/2);
-        
-        
-        UIButton *rightButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-        [rightButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [rightButton setTitle:@"▶️" forState:UIControlStateNormal];
-        [self addSubview:rightButton];
-        rightButton.tag = 3;
-        
-        rightButton.center = CGPointMake(width - 20, height/2);
-        self.alpha = 0.5;
-        
-    }
-    return self;
-}
-
-- (void)onButtonPress:(UIButton *)button
-{
-    if (x == -1 && y == -1)
-    {
-        return;
-    }
-    self.alpha = 1;
-    [self stopTimer];
-    [self startTimer];
-    NSInteger index = button.tag;
-    double value = [[NSString stringWithFormat:@"0.0000%@",[@( 20 *  random() + 40) stringValue]] doubleValue]*1;
-    NSLog(@"%f",value);
-    switch (index)
-    {
-        case 0:
-            y += value;
-            break;
-            
-        case 1:
-            y -= value;
-            break;
-            
-        case 2:
-            x += value;
-            break;
-            
-        case 3:
-            x -= value;
-            break;
-            
-        default:
-            break;
-    }
-}
-
-- (void)stopTimer
-{
-    [_timer invalidate];
-    _timer = nil;
-}
-
-- (void)startTimer
-{
-    _timer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(onTimerFire) userInfo:nil repeats:NO];
-}
-
-- (void)onTimerFire
-{
-    self.alpha = 0.5;
-}
-
-@end
 
 @interface ViewController ()
 {
@@ -136,6 +29,7 @@ static float y = 0;
     double _lat;
     double _lon;
     BOOL _yUpsideDown;
+    BOOL _loadLast;
 }
 @property (weak, nonatomic) IBOutlet UISwitch *yUpSideDownSwitch;
 @property (weak, nonatomic) IBOutlet UIButton *addressButton;
@@ -143,6 +37,7 @@ static float y = 0;
 @property (weak, nonatomic) IBOutlet UISlider *scaleSlider;
 @property (weak, nonatomic) IBOutlet UISwitch *upsideDownButton;
 @property (weak, nonatomic) IBOutlet UISwitch *changeDirection;
+@property (weak, nonatomic) IBOutlet UISwitch *loadLastSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *enableSwitch;
 @end
 
@@ -167,6 +62,7 @@ static float y = 0;
         _yUpsideDown = [params[kYUpSideDownKey] boolValue];
         _lat =  [params[kLatitudeKey] doubleValue];
         _lon = [params[kLongitudeKey] doubleValue];
+        _loadLast = [params[kLoadLastPositionKey]boolValue];
     }
     _addressButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     _addressButton.titleLabel.numberOfLines = 0;
@@ -180,6 +76,7 @@ static float y = 0;
 
 - (void)updateUI
 {
+    _loadLastSwitch.on = _loadLast;
     _enableSwitch.on = _enable;
     _changeDirection.on = _direction;
     _upsideDownButton.on = _upsidedown;
@@ -209,6 +106,7 @@ static float y = 0;
     params[kUpSideDownKey] = @(_upsidedown);
     params[kLatitudeKey] = @(_lat);
     params[kLongitudeKey] = @(_lon);
+    params[kLoadLastPositionKey] = @(_loadLast);
     [params writeToFile:[self savePath] atomically:YES];
 }
 
@@ -260,10 +158,14 @@ static float y = 0;
     [self updateDataInShare];
 }
 
+- (IBAction)loadloastChange:(id)sender {
+    _loadLast = _loadLastSwitch.on;
+    [self save];
+    [self updateDataInShare];
+}
+
 - (IBAction)onAddressButtonPress:(id)sender {
-    
-    ControllerView *v = [[ControllerView alloc] initWithFrame:CGRectMake(20, 40, 120, 120)];
-    [[UIApplication sharedApplication].keyWindow addSubview:v];
+     
     MapViewController *c = [[MapViewController alloc] init];
     c.lat = _lat;
     c.lon = _lon;

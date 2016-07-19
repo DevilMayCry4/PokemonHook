@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="jKW-Mg-RI2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="jKW-Mg-RI2">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -97,11 +97,26 @@
                                     <action selector="enableChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="OGk-3e-XhV"/>
                                 </connections>
                             </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MF3-uC-YA0">
+                                <rect key="frame" x="20" y="476" width="323" height="41"/>
+                                <string key="text">初始化位置为上次的位置，
+上面的设置失效</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jgw-Pg-h9Q">
+                                <rect key="frame" x="496" y="471" width="51" height="31"/>
+                                <connections>
+                                    <action selector="loadloastChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="Nns-0K-kVy"/>
+                                </connections>
+                            </switch>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailingMargin" secondItem="LkK-21-EDi" secondAttribute="trailing" constant="10" id="AZK-3A-hdO"/>
                             <constraint firstAttribute="trailingMargin" secondItem="uoM-gd-8h7" secondAttribute="trailing" constant="10" id="LND-lr-psm"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Jgw-Pg-h9Q" secondAttribute="trailing" constant="10" id="O8o-9p-hTi"/>
                             <constraint firstAttribute="trailingMargin" secondItem="mhS-fc-07B" secondAttribute="trailing" constant="10" id="dNO-jc-6XU"/>
                             <constraint firstAttribute="trailingMargin" secondItem="9WN-Kq-fhR" secondAttribute="trailing" constant="10" id="qKb-og-aJg"/>
                         </constraints>
@@ -111,6 +126,7 @@
                         <outlet property="addressButton" destination="EO3-K3-Hdu" id="yVX-CP-fAc"/>
                         <outlet property="changeDirection" destination="LkK-21-EDi" id="ZMI-3n-9Zc"/>
                         <outlet property="enableSwitch" destination="9WN-Kq-fhR" id="dKn-KY-cOz"/>
+                        <outlet property="loadLastSwitch" destination="Jgw-Pg-h9Q" id="0dL-pC-THl"/>
                         <outlet property="scaleLabel" destination="mhS-fc-07B" id="hLP-1C-mJF"/>
                         <outlet property="scaleSlider" destination="Vpt-DR-Kax" id="hJl-fE-Zzz"/>
                         <outlet property="upsideDownButton" destination="uoM-gd-8h7" id="OOg-me-K8e"/>
