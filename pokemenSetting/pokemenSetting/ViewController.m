@@ -18,6 +18,115 @@ static const NSString * kChangeDirectionKey = @"direction";
 static const NSString * kUpSideDownKey = @"upsidedown";
 static const NSString * kYUpSideDownKey = @"Yupsidedown";
 
+static float x = 0;
+static float y = 0;
+
+@interface ControllerView : UIView
+{
+    NSTimer *_timer;
+}
+@end
+
+@implementation ControllerView
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self)
+    {
+        CGFloat width = CGRectGetWidth(frame);
+        CGFloat height = CGRectGetHeight(frame);
+        
+        UIButton *upButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        [upButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
+        [upButton setTitle:@"🔼" forState:UIControlStateNormal];
+        upButton.tag = 0;
+        [self addSubview:upButton];
+        upButton.center = CGPointMake(width/2, 20);
+        
+        UIButton *downButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        [downButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
+        [downButton setTitle:@"🔽" forState:UIControlStateNormal];
+        downButton.tag = 1;
+        [self addSubview:downButton];
+        
+        downButton.center = CGPointMake(width/2, CGRectGetHeight(frame) - 20);
+        
+        UIButton *leftButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        [leftButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
+        [leftButton setTitle:@"◀️" forState:UIControlStateNormal];
+        [self addSubview:leftButton];
+        leftButton.tag = 2;
+        
+        leftButton.center = CGPointMake(20, height/2);
+        
+        
+        UIButton *rightButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        [rightButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
+        [rightButton setTitle:@"▶️" forState:UIControlStateNormal];
+        [self addSubview:rightButton];
+        rightButton.tag = 3;
+        
+        rightButton.center = CGPointMake(width - 20, height/2);
+        self.alpha = 0.5;
+        
+    }
+    return self;
+}
+
+- (void)onButtonPress:(UIButton *)button
+{
+    if (x == -1 && y == -1)
+    {
+        return;
+    }
+    self.alpha = 1;
+    [self stopTimer];
+    [self startTimer];
+    NSInteger index = button.tag;
+    double value = [[NSString stringWithFormat:@"0.0000%@",[@( 20 *  random() + 40) stringValue]] doubleValue]*1;
+    NSLog(@"%f",value);
+    switch (index)
+    {
+        case 0:
+            y += value;
+            break;
+            
+        case 1:
+            y -= value;
+            break;
+            
+        case 2:
+            x += value;
+            break;
+            
+        case 3:
+            x -= value;
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (void)stopTimer
+{
+    [_timer invalidate];
+    _timer = nil;
+}
+
+- (void)startTimer
+{
+    _timer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(onTimerFire) userInfo:nil repeats:NO];
+}
+
+- (void)onTimerFire
+{
+    self.alpha = 0.5;
+}
+
+@end
+
 @interface ViewController ()
 {
     BOOL _enable;
@@ -153,6 +262,8 @@ static const NSString * kYUpSideDownKey = @"Yupsidedown";
 
 - (IBAction)onAddressButtonPress:(id)sender {
     
+    ControllerView *v = [[ControllerView alloc] initWithFrame:CGRectMake(20, 40, 120, 120)];
+    [[UIApplication sharedApplication].keyWindow addSubview:v];
     MapViewController *c = [[MapViewController alloc] init];
     c.lat = _lat;
     c.lon = _lon;
@@ -167,3 +278,6 @@ static const NSString * kYUpSideDownKey = @"Yupsidedown";
 }
 
 @end
+
+
+
