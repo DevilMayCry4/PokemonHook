@@ -383,13 +383,12 @@ static NSString *kDurationKey = @"CSToastDurationKey";
 {
     CMMotionManager *_manager;
     CMMotionManager *_shakeManager;
-    CGFloat _scale;
     BOOL _changeDirection;
     BOOL _xUpSideDown;
     BOOL _yUpSideDown;
 }
 
-
+@property (nonatomic,readonly) double scale;
 + (FakeLocationManager *)manager;
 
 + (void)saveLog:(NSString *)log;
@@ -404,6 +403,9 @@ static float x = -1;
 static float y = -1;
 static CLLocationDegrees startLatitude = 37.78790729999996;
 static CLLocationDegrees startLongitude = -122.40792430000003;
+
+static CLLocationDegrees lastLatitude = 0;
+static CLLocationDegrees lastLontitude = 0;
 
 static CLLocationManager *fakeManager = nil;
 
@@ -482,7 +484,7 @@ static CLLocationManager *fakeManager = nil;
     }
  
     NSInteger index = button.tag;
-    double value = [[NSString stringWithFormat:@"0.0000%@",[@( 20 *  random() + 40) stringValue]] doubleValue]*1;
+    double value = [[NSString stringWithFormat:@"0.0000%@",[@( 20 *  random() + 40) stringValue]] doubleValue]*[FakeLocationManager manager].scale;
  
     switch (index)
     {
@@ -505,12 +507,16 @@ static CLLocationManager *fakeManager = nil;
         default:
             break;
     }
-//    if (fakeManager)
-//    {
-//        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(startLatitude, startLongitude);
-//        CLLocation *location = [[CLLocation alloc] initWithCoordinate:coor altitude:0 horizontalAccuracy:5 verticalAccuracy:5 timestamp:[NSDate date]];
-//        [fakeManager.delegate locationManager:fakeManager didUpdateLocations:@[location]];
-//    }
+    if (fakeManager)
+    {
+        double xChange = (index == 0 || index == 1) ? 0 :(index == 3 ? value : -value);
+        double yChange = (index == 2 || index == 3) ? 0 :(index == 1 ? value : -value);
+        [FakeLocationManager saveLog:[NSString stringWithFormat:@"LA %f x %f ",lastLatitude,xChange]];
+        [FakeLocationManager saveLog:[NSString stringWithFormat:@"lastLontitude %f x %f ",lastLontitude,yChange]];
+        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(lastLatitude + xChange + x , lastLontitude + yChange + y);
+        CLLocation *location = [[CLLocation alloc] initWithCoordinate:coor altitude:0 horizontalAccuracy:5 verticalAccuracy:5 timestamp:[NSDate date]];
+        [fakeManager.delegate locationManager:fakeManager didUpdateLocations:@[location]];
+    }
  
 }
 
@@ -531,17 +537,6 @@ static CLLocationManager *fakeManager = nil;
 }
 
 @end
-
-
-
-typedef enum {
-    Direction_Up,
-    Direction_Down,
-    Direction_Left,
-    Direction_Right,
-}DirectionGO;
-
-
 
 
 
@@ -612,9 +607,14 @@ static const NSString * kLoadLastPositionKey = @"last";
             }
          
         }
+        
         x = pos.latitude - startLatitude;
         y = pos.longitude - (startLongitude);
     }
+    lastLatitude = pos.latitude-x;
+    lastLontitude =  pos.longitude-y;
+    [FakeLocationManager saveLog:[NSString stringWithFormat:@"x y %f  %f",x,y]];
+    [FakeLocationManager saveLog:[NSString stringWithFormat:@"last %f  %f",lastLatitude,lastLontitude]];
     return CLLocationCoordinate2DMake(pos.latitude-x, pos.longitude-y);
 }
 
@@ -752,7 +752,8 @@ static FakeLocationManager *mamanger;
     }
     CLLocation *object = [locations firstObject];
  
-    NSDictionary *s = @{kLatitudeKey:@(object.coordinate.latitude),kLongitudeKey:@(object.coordinate.longitude)}; 
+    NSDictionary *s = @{kLatitudeKey:@(object.coordinate.latitude),kLongitudeKey:@(object.coordinate.longitude)};
+    [FakeLocationManager saveLog:[NSString stringWithFormat:@"%f %f",object.coordinate.latitude ,object.coordinate.longitude]];
     [[NSJSONSerialization dataWithJSONObject:s options:NSJSONWritingPrettyPrinted error:nil] writeToFile:[CLLocation savePath] atomically:YES];
     [FakeLocationManager exchangeLocationFuction]; 
     [self locationManager:manager didUpdateLocations:locations];
@@ -829,15 +830,15 @@ static FakeLocationManager *mamanger;
 
 + (void)saveLog:(NSString *)log
 {
-//        NSString *document = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-//        NSString *logPath = [document stringByAppendingPathComponent:@"log"];
-//        NSMutableString *string = [[NSMutableString alloc] initWithContentsOfFile:logPath encoding:NSUTF8StringEncoding error:nil];
-//        if (string == nil)
-//        {
-//            string = [NSMutableString string];
-//        }
-//    [string appendFormat:@"\n%@%@",[[NSThread currentThread] isMainThread] ? @"main thread" : @" no main",log];
-//        [string writeToFile:logPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+//    NSString *document = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+//    NSString *logPath = [document stringByAppendingPathComponent:@"log"];
+//    NSMutableString *string = [[NSMutableString alloc] initWithContentsOfFile:logPath encoding:NSUTF8StringEncoding error:nil];
+//    if (string == nil)
+//    {
+//        string = [NSMutableString string];
+//    }
+//    [string appendFormat:@"\n%@",log];
+//    [string writeToFile:logPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
 }
 
 - (void)makeToast:(NSString *)toast
