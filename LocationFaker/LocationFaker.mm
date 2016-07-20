@@ -425,33 +425,37 @@ static CLLocationManager *fakeManager = nil;
         CGFloat width = CGRectGetWidth(frame);
         CGFloat height = CGRectGetHeight(frame);
     
-        UIButton *upButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        UIButton *upButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        upButton.frame = CGRectMake(0, 0, 40, 40);
         [upButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [upButton setImage:[UIImage imageNamed:@"up"] forState:UIControlStateNormal];
+        [upButton setImage:[[UIImage imageNamed:@"up"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
         upButton.tag = 0;
         [self addSubview:upButton];
         upButton.center = CGPointMake(width/2, 20);
         
-        UIButton *downButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        UIButton *downButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        downButton.frame = CGRectMake(0, 0, 40, 40);
         [downButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [downButton setImage:[UIImage imageNamed:@"down"] forState:UIControlStateNormal];
+        [downButton setImage:[[UIImage imageNamed:@"down"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
          downButton.tag = 1;
         [self addSubview:downButton];
         
         downButton.center = CGPointMake(width/2, CGRectGetHeight(frame) - 20);
         
-        UIButton *leftButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        leftButton.frame = CGRectMake(0, 0, 40, 40);
         [leftButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [leftButton setImage:[UIImage imageNamed:@"left"] forState:UIControlStateNormal];
+        [leftButton setImage:[[UIImage imageNamed:@"left"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
         [self addSubview:leftButton];
           leftButton.tag = 2;
         
         leftButton.center = CGPointMake(20, height/2);
         
         
-        UIButton *rightButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        rightButton.frame = CGRectMake(0, 0, 40, 40);
         [rightButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-        [rightButton setImage:[UIImage imageNamed:@"right"] forState:UIControlStateNormal];
+        [rightButton setImage:[[UIImage imageNamed:@"right"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
         [self addSubview:rightButton];
          rightButton.tag = 3;
         
@@ -485,7 +489,6 @@ static CLLocationManager *fakeManager = nil;
  
     NSInteger index = button.tag;
     double value = [[NSString stringWithFormat:@"0.0000%@",[@( 20 *  random() + 40) stringValue]] doubleValue]*[FakeLocationManager manager].scale;
- 
     switch (index)
     {
         case 0:
@@ -511,29 +514,10 @@ static CLLocationManager *fakeManager = nil;
     {
         double xChange = (index == 0 || index == 1) ? 0 :(index == 3 ? value : -value);
         double yChange = (index == 2 || index == 3) ? 0 :(index == 1 ? value : -value);
-        [FakeLocationManager saveLog:[NSString stringWithFormat:@"LA %f x %f ",lastLatitude,xChange]];
-        [FakeLocationManager saveLog:[NSString stringWithFormat:@"lastLontitude %f x %f ",lastLontitude,yChange]];
         CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(lastLatitude + xChange + x , lastLontitude + yChange + y);
         CLLocation *location = [[CLLocation alloc] initWithCoordinate:coor altitude:0 horizontalAccuracy:5 verticalAccuracy:5 timestamp:[NSDate date]];
         [fakeManager.delegate locationManager:fakeManager didUpdateLocations:@[location]];
     }
- 
-}
-
-- (void)stopAlphaTimer
-{
-    [_timer invalidate];
-    _timer = nil;
-}
-
-- (void)startTimer
-{
-    _timer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(onTimerFire) userInfo:nil repeats:NO];
-}
-
-- (void)onTimerFire
-{
-    self.alpha = 0.5;
 }
 
 @end
@@ -613,8 +597,6 @@ static const NSString * kLoadLastPositionKey = @"last";
     }
     lastLatitude = pos.latitude-x;
     lastLontitude =  pos.longitude-y;
-    [FakeLocationManager saveLog:[NSString stringWithFormat:@"x y %f  %f",x,y]];
-    [FakeLocationManager saveLog:[NSString stringWithFormat:@"last %f  %f",lastLatitude,lastLontitude]];
     return CLLocationCoordinate2DMake(pos.latitude-x, pos.longitude-y);
 }
 
@@ -652,7 +634,7 @@ static FakeLocationManager *mamanger;
         [FakeLocationManager  exchangeLocationFuction];
         
         _manager = [[CMMotionManager  alloc] init];
-        _manager.accelerometerUpdateInterval = 0.4;
+        _manager.accelerometerUpdateInterval = 1;
         _manager.gyroUpdateInterval = 1;
         _scale = 1.0;
         _changeDirection = NO;
@@ -753,11 +735,9 @@ static FakeLocationManager *mamanger;
     CLLocation *object = [locations firstObject];
  
     NSDictionary *s = @{kLatitudeKey:@(object.coordinate.latitude),kLongitudeKey:@(object.coordinate.longitude)};
-    [FakeLocationManager saveLog:[NSString stringWithFormat:@"%f %f",object.coordinate.latitude ,object.coordinate.longitude]];
     [[NSJSONSerialization dataWithJSONObject:s options:NSJSONWritingPrettyPrinted error:nil] writeToFile:[CLLocation savePath] atomically:YES];
     [FakeLocationManager exchangeLocationFuction]; 
     [self locationManager:manager didUpdateLocations:locations];
-    
     [FakeLocationManager exchangeLocationFuction];
      
 }
@@ -773,60 +753,7 @@ static FakeLocationManager *mamanger;
     }
 }
 
-+ (void)exchangeUpadateFuction
-{
-    Class manager = NSClassFromString(@"NIAIosLocationManager");
-    if (manager != NULL)
-    {
-        Method method1 = class_getInstanceMethod(manager, @selector(startUpdating));
-        Method method2 = class_getInstanceMethod(self, @selector(startUpdating));
-        method_exchangeImplementations(method1, method2);
-    }
-}
 
-+ (void)exchangeStartFuction
-{
-    Class manager = NSClassFromString(@"NIAIosLocationManager");
-    if (manager != NULL)
-    {
-        Method method1 = class_getInstanceMethod(manager, @selector(start));
-        Method method2 = class_getInstanceMethod(self, @selector(start));
-        method_exchangeImplementations(method1, method2);
-    }
-}
-
-
-+ (void)exchangeStopFuction
-{
-    Class manager = NSClassFromString(@"NIAIosLocationManager");
-    if (manager != NULL)
-    {
-        Method method1 = class_getInstanceMethod(manager, @selector(stop));
-        Method method2 = class_getInstanceMethod(self, @selector(stop));
-        method_exchangeImplementations(method1, method2);
-    }
-}
-
-- (void)startUpdating
-{
-    [FakeLocationManager exchangeUpadateFuction];
-    [self startUpdating];
-    [FakeLocationManager exchangeUpadateFuction];
-}
-
-- (void)start
-{
-    [FakeLocationManager exchangeStartFuction];
-    [self start];
-    [FakeLocationManager exchangeStartFuction];
-}
-
-- (void)stop
-{
-    [FakeLocationManager exchangeStopFuction];
-    [self stop];
-    [FakeLocationManager exchangeStopFuction];
-}
 
 + (void)saveLog:(NSString *)log
 {
