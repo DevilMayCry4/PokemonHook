@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C598B4601D410CEF00F850CD /* AddressManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C598B45F1D410CEF00F850CD /* AddressManager.m */; };
+		C598B4641D410EE600F850CD /* AddressListController.m in Sources */ = {isa = PBXBuildFile; fileRef = C598B4631D410EE600F850CD /* AddressListController.m */; };
 		C5BA96881D3C9DCD0087DC91 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C5BA96871D3C9DCD0087DC91 /* main.m */; };
 		C5BA968B1D3C9DCD0087DC91 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C5BA968A1D3C9DCD0087DC91 /* AppDelegate.m */; };
 		C5BA968E1D3C9DCD0087DC91 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C5BA968D1D3C9DCD0087DC91 /* ViewController.m */; };
@@ -30,6 +32,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C598B45E1D410CEF00F850CD /* AddressManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddressManager.h; sourceTree = "<group>"; };
+		C598B45F1D410CEF00F850CD /* AddressManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddressManager.m; sourceTree = "<group>"; };
+		C598B4611D410DB400F850CD /* Define.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Define.h; sourceTree = "<group>"; };
+		C598B4621D410EE600F850CD /* AddressListController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddressListController.h; sourceTree = "<group>"; };
+		C598B4631D410EE600F850CD /* AddressListController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddressListController.m; sourceTree = "<group>"; };
 		C5BA96831D3C9DCD0087DC91 /* pokemenSetting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pokemenSetting.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5BA96871D3C9DCD0087DC91 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		C5BA96891D3C9DCD0087DC91 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -102,6 +109,11 @@
 				C5BA96AE1D3CA5D70087DC91 /* MapViewController.h */,
 				C5BA96AF1D3CA5D70087DC91 /* MapViewController.m */,
 				C5BA96B01D3CA5D70087DC91 /* MapViewController.xib */,
+				C598B45E1D410CEF00F850CD /* AddressManager.h */,
+				C598B45F1D410CEF00F850CD /* AddressManager.m */,
+				C598B4611D410DB400F850CD /* Define.h */,
+				C598B4621D410EE600F850CD /* AddressListController.h */,
+				C598B4631D410EE600F850CD /* AddressListController.m */,
 			);
 			path = pokemenSetting;
 			sourceTree = "<group>";
@@ -224,10 +236,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C598B4641D410EE600F850CD /* AddressListController.m in Sources */,
 				C5BA968E1D3C9DCD0087DC91 /* ViewController.m in Sources */,
 				C5BA968B1D3C9DCD0087DC91 /* AppDelegate.m in Sources */,
 				C5BA96881D3C9DCD0087DC91 /* main.m in Sources */,
 				C5BA96B11D3CA5D70087DC91 /* MapViewController.m in Sources */,
+				C598B4601D410CEF00F850CD /* AddressManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -423,6 +437,7 @@
 				C5BA96A71D3C9DCD0087DC91 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C5BA96A81D3C9DCD0087DC91 /* Build configuration list for PBXNativeTarget "pokemenSettingUITests" */ = {
 			isa = XCConfigurationList;
@@ -431,6 +446,7 @@
 				C5BA96AA1D3C9DCD0087DC91 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

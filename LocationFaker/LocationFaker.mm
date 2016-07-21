@@ -424,7 +424,39 @@ static CLLocationManager *fakeManager = nil;
     {
         CGFloat width = CGRectGetWidth(frame);
         CGFloat height = CGRectGetHeight(frame);
-    
+        
+        UIButton *leftUpButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        leftUpButton.frame = CGRectMake(10, 10, 40, 40);
+        [leftUpButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
+        [leftUpButton setImage:[[UIImage imageNamed:@"leftup"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
+        leftUpButton.tag = 4;
+        [self addSubview:leftUpButton];
+        
+        
+        UIButton *rightUpButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        rightUpButton.frame = CGRectMake(70, 10, 40, 40);
+        [rightUpButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
+        [rightUpButton setImage:[[UIImage imageNamed:@"rightup"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
+        rightUpButton.tag = 5;
+        [self addSubview:rightUpButton];
+        
+        
+        UIButton *leftDownButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        leftDownButton.frame = CGRectMake(10, 70, 40, 40);
+        [leftDownButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
+        [leftDownButton setImage:[[UIImage imageNamed:@"leftdown"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
+        leftDownButton.tag = 6;
+        [self addSubview:leftDownButton];
+        
+        
+        UIButton *rightDownButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        rightDownButton.frame = CGRectMake(70, 70, 40, 40);
+        [rightDownButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
+        [rightDownButton setImage:[[UIImage imageNamed:@"rightdown"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
+        rightDownButton.tag = 7;
+        [self addSubview:rightDownButton];
+        
+        
         UIButton *upButton = [UIButton buttonWithType:UIButtonTypeSystem];
         upButton.frame = CGRectMake(0, 0, 40, 40);
         [upButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
@@ -437,7 +469,7 @@ static CLLocationManager *fakeManager = nil;
         downButton.frame = CGRectMake(0, 0, 40, 40);
         [downButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
         [downButton setImage:[[UIImage imageNamed:@"down"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
-         downButton.tag = 1;
+        downButton.tag = 1;
         [self addSubview:downButton];
         
         downButton.center = CGPointMake(width/2, CGRectGetHeight(frame) - 20);
@@ -447,7 +479,7 @@ static CLLocationManager *fakeManager = nil;
         [leftButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
         [leftButton setImage:[[UIImage imageNamed:@"left"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
         [self addSubview:leftButton];
-          leftButton.tag = 2;
+        leftButton.tag = 2;
         
         leftButton.center = CGPointMake(20, height/2);
         
@@ -457,7 +489,7 @@ static CLLocationManager *fakeManager = nil;
         [rightButton addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
         [rightButton setImage:[[UIImage imageNamed:@"right"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
         [self addSubview:rightButton];
-         rightButton.tag = 3;
+        rightButton.tag = 3;
         
         rightButton.center = CGPointMake(width - 20, height/2);
         self.alpha = 0.7;
@@ -489,32 +521,55 @@ static CLLocationManager *fakeManager = nil;
  
     NSInteger index = button.tag;
     double value = [[NSString stringWithFormat:@"0.0000%@",[@( 20 *  random() + 40) stringValue]] doubleValue]*[FakeLocationManager manager].scale;
+    double xValue = 0;
+    double yValue = 0;
     switch (index)
     {
         case 0:
-            y += value;
+            yValue = value; 
             break;
             
         case 1:
-            y -= value;
+            yValue = -value;
             break;
             
         case 2:
-            x += value;
+            xValue = value;
             break;
             
         case 3:
-            x -= value;
+            xValue = -value;
+            break;
+            
+        case 4:
+            xValue = value;
+            yValue = value;
+            break;
+            
+        case 5:
+            xValue = -value;
+            yValue = value;
+            break;
+            
+        case 6:
+            xValue = value;
+            yValue = -value;
+            break;
+            
+        case 7:
+            xValue = -value;
+            yValue = -value;
             break;
             
         default:
             break;
     }
+    x += xValue;
+    y += yValue;
     if (fakeManager)
     {
-        double xChange = (index == 0 || index == 1) ? 0 :(index == 3 ? value : -value);
-        double yChange = (index == 2 || index == 3) ? 0 :(index == 1 ? value : -value);
-        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(lastLatitude + xChange + x , lastLontitude + yChange + y);
+        
+        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(lastLatitude - xValue + x , lastLontitude - yValue + y);
         CLLocation *location = [[CLLocation alloc] initWithCoordinate:coor altitude:0 horizontalAccuracy:5 verticalAccuracy:5 timestamp:[NSDate date]];
         [fakeManager.delegate locationManager:fakeManager didUpdateLocations:@[location]];
     }
@@ -667,18 +722,21 @@ static FakeLocationManager *mamanger;
 - (void)enterFore
 {
     NSDictionary *dict = [self loadSetting];
-    _xUpSideDown = [dict[kUpSideDownKey] boolValue];
-    _yUpSideDown = [dict[kYUpSideDownKey] boolValue];
-    _changeDirection = [dict[kChangeDirectionKey]boolValue];
-    _scale = [dict[kScaleKey] floatValue];
-    if ([dict[kEnableMotionKey] boolValue])
+    if (dict)
     {
-        [self makeToast:@"重力感应开始"];
-        [self startMotion];
-    }
-    else
-    {
-        [self makeToast:@"重力感应停止"];
+        _xUpSideDown = [dict[kUpSideDownKey] boolValue];
+        _yUpSideDown = [dict[kYUpSideDownKey] boolValue];
+        _changeDirection = [dict[kChangeDirectionKey]boolValue];
+        _scale = [dict[kScaleKey] floatValue];
+        if ([dict[kEnableMotionKey] boolValue])
+        {
+            [self makeToast:@"重力感应开始"];
+            [self startMotion];
+        }
+        else
+        {
+            [self makeToast:@"重力感应停止"];
+        }
     }
 }
 

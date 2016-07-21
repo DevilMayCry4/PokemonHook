@@ -8,16 +8,7 @@
 
 #import "ViewController.h"
 #import "MapViewController.h"
-static const NSString * kLatitudeKey = @"lat";
-static const NSString * kLongitudeKey = @"lon";
-
-
-static const NSString * kEnableMotionKey = @"enable";
-static const NSString * kScaleKey = @"scale";
-static const NSString * kChangeDirectionKey = @"direction";
-static const NSString * kUpSideDownKey = @"upsidedown";
-static const NSString * kYUpSideDownKey = @"Yupsidedown";
-static const NSString * kLoadLastPositionKey = @"last";
+#import "Define.h"
 
 
 @interface ViewController ()

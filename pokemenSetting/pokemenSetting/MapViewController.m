@@ -8,8 +8,9 @@
 
 #import "MapViewController.h"
 #import <MapKit/MapKit.h>
-
-
+#import "AddressManager.h"
+#import "AddressListController.h"
+#import "Define.h"
 @interface MKMapView (ZoomLevel)
 
 - (void)setCenterCoordinate:(CLLocationCoordinate2D)centerCoordinate
@@ -132,8 +133,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:@"保存" style:UIBarButtonItemStyleDone target:self action:@selector(onSaveItemPress)];
-    self.navigationItem.rightBarButtonItem = item;
+    
+    UIBarButtonItem *item1 = [[UIBarButtonItem alloc] initWithTitle:@"选择书签" style:UIBarButtonItemStyleDone target:self action:@selector(onChoosePress)];
+    UIBarButtonItem *item2 = [[UIBarButtonItem alloc] initWithTitle:@"保存" style:UIBarButtonItemStyleDone target:self action:@selector(onSaveItemPress)];
+    UIBarButtonItem *item3 = [[UIBarButtonItem alloc] initWithTitle:@"使用" style:UIBarButtonItemStyleDone target:self action:@selector(onUsePress)];
+    self.navigationItem.rightBarButtonItems = @[item1,item2,item3];
     CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(_lat, _lon);
     
     if (CLLocationCoordinate2DIsValid(coord))
@@ -153,13 +157,52 @@
     // Do any additional setup after loading the view from its nib.
 }
 
-- (void)onSaveItemPress
+- (void)onChoosePress
+{
+    AddressListController *c = [[AddressListController alloc] init];
+    [self.navigationController pushViewController:c  animated:YES];
+    c.didSelect = ^(NSDictionary *params){
+        [self.mapView removeAnnotation:_lastAnnotation];
+        _lastAnnotation = nil;
+        
+        //坐标转换
+        CLLocationCoordinate2D touchMapCoordinate = CLLocationCoordinate2DMake([params[kLatitudeKey] doubleValue], [params[kLongitudeKey] doubleValue]);
+        
+        [self.mapView setCenterCoordinate:touchMapCoordinate zoomLevel:17 animated:NO];
+        MapAnnotation *annotation = [[MapAnnotation alloc] init];
+        annotation.title = [NSString stringWithFormat:@"lan:%@ lon:%@",[@(touchMapCoordinate.latitude) stringValue],[@(touchMapCoordinate.longitude) stringValue]];
+        annotation.coordinate = touchMapCoordinate;
+        [self.mapView addAnnotation:annotation];
+        _lastAnnotation = annotation;
+    };
+}
+
+- (void)onUsePress
 {
     if (_saveAddress)
     {
         _saveAddress(_lastAnnotation.coordinate.latitude,_lastAnnotation.coordinate.longitude);
     }
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)onSaveItemPress
+{
+    UIAlertController *c =  [UIAlertController alertControllerWithTitle:@"保存到书签" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    [c addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        
+    }];
+    UIAlertAction *action2 = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+    }];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"保存" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        
+        [[AddressManager manager] save:_lastAnnotation.coordinate.latitude  lon:_lastAnnotation.coordinate.longitude tag: c.textFields.firstObject.text];
+    }];
+    [c addAction:action];
+    
+    [c addAction:action2];
+    [self presentViewController:c animated:YES completion:nil];
 }
 
 - (void)longPress:(UIGestureRecognizer*)gestureRecognizer
